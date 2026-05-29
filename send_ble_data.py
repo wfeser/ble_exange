@@ -8,7 +8,8 @@ DEVICE_NAME = "LTD_000001"
 CHARACTERISTIC_UUID = "f000fff1-0451-4000-b000-000000000000"
 
 # Данные для отправки
-DATA = bytes([0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x02, 0x80, 0x00, 0x00, 0x82])
+#DATA = bytes([0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x02, 0x80, 0x00, 0x00, 0x82])
+DATA = bytes([0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x82, 0x1d, 0x05, 0x01, 0x00, 0x00, 0xc0, 0x0f, 0x39, 0x3f, 0x80, 0x00, 0x00, 0x20, 0x40, 0x00, 0x00, 0x00, 0x20, 0x40, 0x40, 0x00, 0x00, 0x92])
 
 INTERVAL_SECONDS = 20
 # ============================================
@@ -32,7 +33,7 @@ async def write_to_device(client: BleakClient):
         print(f"[{timestamp}] Отправлено: {bytes_to_hex(DATA)}")
         return True
     except Exception as e:
-        print(f"[{datetime.now().strftime('%H:%M:%S')}] ❌ Ошибка записи: {e}")
+        print(f"[{datetime.now().strftime('%H:%M:%S')}] Ошибка записи: {e}")
         return False
 
 
@@ -48,23 +49,23 @@ async def main():
             target_device = next((dev for dev in devices if dev.name == DEVICE_NAME), None)
 
             if not target_device:
-                print(f"[{datetime.now().strftime('%H:%M:%S')}] ❌ Устройство не найдено. Ожидание {INTERVAL_SECONDS} сек...")
+                print(f"[{datetime.now().strftime('%H:%M:%S')}] Устройство не найдено. Ожидание {INTERVAL_SECONDS} сек...")
                 await asyncio.sleep(INTERVAL_SECONDS)
                 continue
 
-            print(f"[{datetime.now().strftime('%H:%M:%S')}] ✅ Устройство найдено: {target_device.address}")
+            print(f"[{datetime.now().strftime('%H:%M:%S')}] Устройство найдено: {target_device.address}")
 
             async with BleakClient(target_device.address) as client:
-                print(f"   🔗 Подключено успешно")
+                print(f"[{datetime.now().strftime('%H:%M:%S')}] Подключено успешно")
 
                 # Включаем уведомления
                 await client.start_notify(CHARACTERISTIC_UUID, notification_handler)
-                print(f"[{datetime.now().strftime('%H:%M:%S')}] 🛎️  Notify включён на характеристике")
+                print(f"[{datetime.now().strftime('%H:%M:%S')}] Notify включён на характеристике")
 
                 # Первая отправка
                 await write_to_device(client)
 
-                print(f"[{datetime.now().strftime('%H:%M:%S')}] ⏳ Работаем... (отправка каждые {INTERVAL_SECONDS} сек)\n")
+                print(f"[{datetime.now().strftime('%H:%M:%S')}] Работаем... (отправка каждые {INTERVAL_SECONDS} сек)\n")
 
                 # Бесконечный цикл отправки
                 while True:
@@ -75,7 +76,7 @@ async def main():
             print("\n\nСкрипт остановлен.")
             break
         except Exception as e:
-            print(f"[{datetime.now().strftime('%H:%M:%S')}] ⚠️ Ошибка: {e}")
+            print(f"[{datetime.now().strftime('%H:%M:%S')}] Ошибка: {e}")
             await asyncio.sleep(INTERVAL_SECONDS)
         finally:
             # Попытка отключить notify при выходе из блока
